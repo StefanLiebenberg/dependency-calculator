@@ -106,7 +106,7 @@
                     <noJekyll>true</noJekyll>
                     <merge>false</merge>
                     <repositoryOwner>StefanLiebenberg</repositoryOwner>
-                    <repositoryName>kute</repositoryName>
+                    <repositoryName>dependency-calculator</repositoryName>
                     <oauth2Token>${env.TOKEN}</oauth2Token>
                 </configuration>
                 <executions>
@@ -205,7 +205,7 @@
     </build>
     <dependencies>
         <dependency>
-            <groupId>com.github.stefanliebenberg</groupId>
+            <groupId>org.slieb</groupId>
             <artifactId>kute</artifactId>
             <version>0.3</version>
         </dependency>
