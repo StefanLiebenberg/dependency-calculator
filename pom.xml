@@ -165,11 +165,6 @@
     </build>
     <dependencies>
         <dependency>
-            <groupId>org.slieb</groupId>
-            <artifactId>kute</artifactId>
-            <version>0.3</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>18.0</version>

@@ -8,8 +8,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import slieb.kute.api.Resource;
-import slieb.kute.api.ResourceProvider;
+
+import java.util.function.Supplier;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
@@ -21,24 +21,23 @@ public class DependencyCalculatorTest {
     String nsA = "ns.A", nsB = "ns.B", nsC = "ns.c", nsD = "ns.d";
 
     @Mock
-    Resource.Readable resourceA, resourceB, resourceC, resourceD;
+    Object resourceA, resourceB, resourceC, resourceD;
 
     @Mock
-    DependencyNode<Resource.Readable> depA, depB, depC, depD;
+    DependencyNode<Object> depA, depB, depC, depD;
 
     @Mock
-    ResourceProvider<Resource.Readable> mockProvider;
+    Supplier<Iterable<Object>> mockProvider;
 
     @Mock
-    DependencyParser<Resource.Readable, DependencyNode<Resource.Readable>> mockParser;
+    DependencyParser<Object, DependencyNode<Object>> mockParser;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    DefaultDependencyHelper<DependencyNode<Resource.Readable>> mockHelper;
+    DefaultDependencyHelper<DependencyNode<Object>> mockHelper;
 
-    DependencyCalculator<Resource.Readable, DependencyNode<Resource.Readable>> calculator;
+    DependencyCalculator<Object, DependencyNode<Object>> calculator;
 
-
-    private void setupReadable(Resource.Readable resource, DependencyNode<Resource.Readable> dependency, String ns) {
+    private void setupReadable(Object resource, DependencyNode<Object> dependency, String ns) {
         when(mockParser.parse(resource)).thenReturn(dependency);
         when(dependency.getResource()).thenReturn(resource);
         when(dependency.getProvides()).thenReturn(ImmutableSet.of(ns));
@@ -47,7 +46,7 @@ public class DependencyCalculatorTest {
     @Before
     public void setup() {
 
-        when(mockProvider.getResources()).thenReturn(ImmutableSet.of(resourceA, resourceB, resourceC, resourceD));
+        when(mockProvider.get()).thenReturn(ImmutableSet.of(resourceA, resourceB, resourceC, resourceD));
         setupReadable(resourceA, depA, nsA);
         setupReadable(resourceB, depB, nsB);
         setupReadable(resourceC, depC, nsC);
@@ -78,7 +77,6 @@ public class DependencyCalculatorTest {
         when(depA.getRequires()).thenReturn(ImmutableSet.of(nsB, nsC, nsD));
         when(depB.getRequires()).thenReturn(ImmutableSet.of(nsC, nsD));
         when(depC.getRequires()).thenReturn(ImmutableSet.of(nsD));
-
         assertEquals(ImmutableList.of(resourceD, resourceC, resourceB, resourceA), calculator.getResourcesFor(nsA));
         assertEquals(ImmutableList.of(resourceD, resourceC, resourceB), calculator.getResourcesFor(nsB));
         assertEquals(ImmutableList.of(resourceD, resourceC), calculator.getResourcesFor(nsC));

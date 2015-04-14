@@ -1,30 +1,29 @@
 package org.slieb.dependencies;
 
 import com.google.common.collect.ImmutableSet;
-import slieb.kute.api.Resource;
-import slieb.kute.api.ResourceProvider;
 
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import static java.util.stream.Collectors.toList;
 
-public class DependencyCalculator<R extends Resource.Readable, D extends DependencyNode<R>> {
+public class DependencyCalculator<R, D extends DependencyNode<R>> {
 
-    protected final ResourceProvider<R> resourceProvider;
+    protected final Supplier<Iterable<R>> resourceSupplier;
 
     protected final DependencyParser<R, D> dependencyParser;
 
     protected final DependenciesHelper<D> dependenciesHelper;
 
-    public DependencyCalculator(ResourceProvider<R> provider, DependencyParser<R, D> parser, DependenciesHelper<D> helper) {
-        this.resourceProvider = provider;
+    public DependencyCalculator(Supplier<Iterable<R>> provider, DependencyParser<R, D> parser, DependenciesHelper<D> helper) {
+        this.resourceSupplier = provider;
         this.dependencyParser = parser;
         this.dependenciesHelper = helper;
     }
 
-    public DependencyCalculator(ResourceProvider<R> provider, DependencyParser<R, D> parser) {
-        this.resourceProvider = provider;
+    public DependencyCalculator(Supplier<Iterable<R>> provider, DependencyParser<R, D> parser) {
+        this.resourceSupplier = provider;
         this.dependencyParser = parser;
         this.dependenciesHelper = new DefaultDependencyHelper<>();
     }
@@ -32,7 +31,7 @@ public class DependencyCalculator<R extends Resource.Readable, D extends Depende
 
     public ImmutableSet<D> getDependenciesSet() {
         ImmutableSet.Builder<D> setBuilder = new ImmutableSet.Builder<>();
-        for (R r : resourceProvider.getResources()) {
+        for (R r : resourceSupplier.get()) {
             setBuilder.add(dependencyParser.parse(r));
         }
         return setBuilder.build();
