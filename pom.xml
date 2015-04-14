@@ -7,7 +7,7 @@
     <description>A dependency calculation utility</description>
     <groupId>org.slieb</groupId>
     <artifactId>dependency-calculator</artifactId>
-    <version>0.1</version>
+    <version>0.2</version>
     <licenses>
         <license>
             <name>MIT License</name>
