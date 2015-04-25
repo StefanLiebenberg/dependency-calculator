@@ -1,5 +1,6 @@
 package org.slieb.dependencies;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 
 import java.util.Collection;
@@ -18,7 +19,7 @@ public class DependencyCalculator<R, D extends DependencyNode<R>> {
 
     protected final DependenciesHelper<D> dependenciesHelper;
 
-    public DependencyCalculator(Iterable<R> resources, DependencyParser<R, D> parser, DependenciesHelper<D> helper) {
+    public DependencyCalculator(Collection<R> resources, DependencyParser<R, D> parser, DependenciesHelper<D> helper) {
         this.resources = resources;
         this.dependencyParser = parser;
         this.dependenciesHelper = helper;
@@ -46,6 +47,7 @@ public class DependencyCalculator<R, D extends DependencyNode<R>> {
     }
 
     public List<D> getDependenciesFor(R resource) {
+        Preconditions.checkNotNull(resource, "Given Resource cannot be null");
         return getDependencyResolver()
                 .resolveNode(dependencyParser.parse(resource))
                 .resolve();
