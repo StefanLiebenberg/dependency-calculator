@@ -7,7 +7,7 @@
     <description>A dependency calculation utility</description>
     <groupId>org.slieb</groupId>
     <artifactId>dependency-calculator</artifactId>
-    <version>0.3</version>
+    <version>0.4-SNAPSHOTt st</version>
 
     <licenses>
         <license>
