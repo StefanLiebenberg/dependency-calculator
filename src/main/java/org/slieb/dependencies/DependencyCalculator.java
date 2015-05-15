@@ -14,7 +14,6 @@ import static java.util.stream.Collectors.toSet;
 
 public class DependencyCalculator<R, D extends DependencyNode<R>> {
 
-
     protected final Iterable<R> resources;
 
     protected final DependencyParser<R, D> dependencyParser;
@@ -27,9 +26,10 @@ public class DependencyCalculator<R, D extends DependencyNode<R>> {
         this.dependenciesHelper = helper;
     }
 
-    public DependencyCalculator(Collection<R> resources, DependencyParser<R, D> parser) {
+    public DependencyCalculator(Iterable<R> resources, DependencyParser<R, D> parser) {
         this(resources, parser, new DefaultDependencyHelper<>());
     }
+
 
     private Stream<R> resourceStream() {
         if (resources instanceof Collection) {
@@ -81,7 +81,7 @@ public class DependencyCalculator<R, D extends DependencyNode<R>> {
                 .collect(toList());
     }
 
-    
+
     public List<R> getResourcesFor(String... namespaces) {
         return getResourcesFor(ImmutableSet.copyOf(namespaces));
     }
