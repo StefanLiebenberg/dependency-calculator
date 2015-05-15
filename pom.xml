@@ -7,7 +7,7 @@
     <description>A dependency calculation utility</description>
     <groupId>org.slieb</groupId>
     <artifactId>dependency-calculator</artifactId>
-    <version>0.4</version>
+    <version>0.5-SNAPSHOT</version>
     <url>https://stefanliebenberg.github.io/dependency-calculator</url>
     <packaging>jar</packaging>
 
