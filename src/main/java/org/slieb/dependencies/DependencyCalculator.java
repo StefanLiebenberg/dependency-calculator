@@ -1,11 +1,7 @@
 package org.slieb.dependencies;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -20,14 +16,17 @@ public class DependencyCalculator<R, D extends DependencyNode<R>> {
 
     protected final DependenciesHelper<D> dependenciesHelper;
 
-    public DependencyCalculator(Iterable<R> resources, DependencyParser<R, D> parser, DependenciesHelper<D> helper) {
+    public DependencyCalculator(Iterable<R> resources,
+                                DependencyParser<R, D> parser,
+                                DependenciesHelper<D> helper) {
         this.resources = resources;
         this.dependencyParser = parser;
         this.dependenciesHelper = helper;
     }
 
-    public DependencyCalculator(Iterable<R> resources, DependencyParser<R, D> parser) {
-        this(resources, parser, new DefaultDependencyHelper<>());
+    public DependencyCalculator(Iterable<R> resources,
+                                DependencyParser<R, D> parser) {
+        this(resources, parser, new DefaultHelper<>());
     }
 
 
@@ -46,8 +45,8 @@ public class DependencyCalculator<R, D extends DependencyNode<R>> {
     public DependencyResolver<D> getDependencyResolver() {
         Collection<D> dependencies = getDependencyNodes();
         return new DependencyResolver<>(
-                dependenciesHelper.getResolveableSet(dependencies),
-                dependenciesHelper.getBaselist(dependencies));
+                dependenciesHelper.getResolvableSet(dependencies),
+                dependenciesHelper.getBaseList(dependencies));
     }
 
     public List<D> getDependenciesFor(Set<String> namespaces) {
@@ -57,14 +56,16 @@ public class DependencyCalculator<R, D extends DependencyNode<R>> {
     }
 
     public List<D> getDependenciesFor(R resource) {
-        Preconditions.checkNotNull(resource, "Given Resource cannot be null");
+        if (resource == null) {
+            throw DependencyException.cannotResolveNull();
+        }
         return getDependencyResolver()
                 .resolveNode(dependencyParser.parse(resource))
                 .resolve();
     }
 
     public List<D> getDependenciesFor(String... namespaces) {
-        return getDependenciesFor(ImmutableSet.copyOf(namespaces));
+        return getDependenciesFor(immutableNamespaces(namespaces));
     }
 
     public List<R> getResourcesFor(Set<String> namespaces) {
@@ -83,6 +84,14 @@ public class DependencyCalculator<R, D extends DependencyNode<R>> {
 
 
     public List<R> getResourcesFor(String... namespaces) {
-        return getResourcesFor(ImmutableSet.copyOf(namespaces));
+        return getResourcesFor(immutableNamespaces(namespaces));
+    }
+
+    private Set<String> immutableNamespaces(String... namespaces) {
+        return Collections.unmodifiableSet(Arrays.stream(namespaces).collect(Collectors.toSet()));
+    }
+
+    private static class DefaultHelper<D extends DependencyNode> implements DependenciesHelper<D> {
+
     }
 }

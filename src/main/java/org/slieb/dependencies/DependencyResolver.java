@@ -1,15 +1,11 @@
 package org.slieb.dependencies;
 
-import com.google.common.collect.ImmutableList;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * The dependency Resolver will resolve a collection of Dependencies.
- * note:          A draw back of this method is that too many items in the require chain will cause a long recursing and result in a stackoverflow.
+ * note:          A draw back of this method is that too many items in the require chain will cause a long recursing
+ * and result in a stackoverflow.
  *
  * @param <D> A extension of the dependency node.
  */
@@ -31,7 +27,8 @@ public class DependencyResolver<D extends DependencyNode<?>> {
      * @param dependencyNodes A List of dependency nodes.
      * @param baseList        A baselist of files that need to be included.
      */
-    public DependencyResolver(Collection<D> dependencyNodes, List<D> baseList) {
+    public DependencyResolver(Collection<D> dependencyNodes,
+                              List<D> baseList) {
         this(dependencyNodes);
         if (baseList != null) {
             this.resolvedNodes.addAll(baseList);
@@ -45,7 +42,8 @@ public class DependencyResolver<D extends DependencyNode<?>> {
     }
 
     // synchronized because resolvedNodes add in here.
-    private synchronized void resolveDependencies(D node, HashSet<D> parents) throws DependencyException {
+    private synchronized void resolveDependencies(D node,
+                                                  HashSet<D> parents) throws DependencyException {
         if (!resolvedNodes.contains(node)) {
             parents.add(node);
             node.getRequires().forEach(ns -> resolveDependencies(ns, parents));
@@ -112,9 +110,9 @@ public class DependencyResolver<D extends DependencyNode<?>> {
     }
 
     /**
-     * @return an {@link ImmutableList} of dependency nodes.
+     * @return an {@link List} of dependency nodes.
      */
-    public ImmutableList<D> resolve() {
-        return ImmutableList.copyOf(resolvedNodes);
+    public List<D> resolve() {
+        return Collections.unmodifiableList(resolvedNodes);
     }
 }

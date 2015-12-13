@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <name>Dependency Calculator</name>
     <description>A dependency calculation utility</description>
     <groupId>org.slieb</groupId>
     <artifactId>dependency-calculator</artifactId>
-    <version>0.4</version>
+    <version>0.7-SNAPSHOT</version>
     <url>https://stefanliebenberg.github.io/dependency-calculator</url>
     <packaging>jar</packaging>
 
@@ -39,6 +37,9 @@
         <plugin.maven-source-plugin>2.4</plugin.maven-source-plugin>
         <plugin.site-maven-plugin>0.11</plugin.site-maven-plugin>
         <plugin.maven-resources-plugin>2.7</plugin.maven-resources-plugin>
+        <plugin.maven-project-info-reports-plugin>2.8</plugin.maven-project-info-reports-plugin>
+        <plugin.maven-shared-jar>1.1</plugin.maven-shared-jar>
+        <plugin.bcel-findbugs>6.0</plugin.bcel-findbugs>
         <dep.maven>3.3.1</dep.maven>
         <dep.guava>18.0</dep.guava>
         <dep.junit>4.12</dep.junit>
@@ -55,11 +56,11 @@
         <version>9</version>
     </parent>
     <scm>
-        <url>https://github.com/StefanLiebenberg/dependendency-calculator</url>
+        <url>https://github.com/StefanLiebenberg/dependency-calculator</url>
         <connection>
-            scm:git:git://github.com/StefanLiebenberg/dependendency-calculator.git
+            scm:git:git://github.com/StefanLiebenberg/dependency-calculator.git
         </connection>
-        <developerConnection>scm:git:git@github.com:StefanLiebenberg/dependendency-calculator.git</developerConnection>
+        <developerConnection>scm:git:git@github.com:StefanLiebenberg/dependency-calculator.git</developerConnection>
     </scm>
 
     <developers>
@@ -82,11 +83,12 @@
         </repository>
     </distributionManagement>
 
- <dependencies>
+    <dependencies>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${dep.guava}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -158,7 +160,7 @@
                     <merge>false</merge>
                     <repositoryOwner>StefanLiebenberg</repositoryOwner>
                     <repositoryName>dependency-calculator</repositoryName>
-                   
+
                 </configuration>
                 <executions>
                     <execution>
@@ -216,12 +218,34 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${plugin.maven-surefire-plugin}</version>
-                
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>${plugin.maven-project-info-reports-plugin}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.shared</groupId>
+                        <artifactId>maven-shared-jar</artifactId>
+                        <version>${plugin.maven-shared-jar}</version>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>org.apache.bcel</groupId>
+                                <artifactId>bcel</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.google.code.findbugs</groupId>
+                        <artifactId>bcel-findbugs</artifactId>
+                        <version>${plugin.bcel-findbugs}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>
-   
-<reporting>
+
+    <reporting>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

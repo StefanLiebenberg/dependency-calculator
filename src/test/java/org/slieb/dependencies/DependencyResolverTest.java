@@ -19,33 +19,36 @@ public class DependencyResolverTest {
     @Mock
     DependencyNode<?> depA, depB, depC;
 
-    DependencyResolver<DependencyNode<?>> resolver;
 
     @Before
     public void setupResources() {
         when(depA.getProvides()).thenReturn(newHashSet("dep.a"));
         when(depB.getProvides()).thenReturn(newHashSet("dep.b"));
         when(depC.getProvides()).thenReturn(newHashSet("dep.c"));
-        resolver = new DependencyResolver<>(ImmutableSet.of(depA, depB, depC));
     }
 
     @Test
     public void testDependencyResolutionTwoDeps() {
         when(depA.getRequires()).thenReturn(newHashSet("dep.b", "dep.c"));
-        assertEquals(ImmutableList.of(depC, depB, depA), resolver.resolveNamespace("dep.a").resolve());
+        assertEquals(ImmutableList.of(depC, depB, depA),
+                     new DependencyResolver<>(ImmutableSet.of(depA, depB, depC))
+                             .resolveNamespace("dep.a")
+                             .resolve());
     }
 
     @Test
     public void testDependencyResolutionOneDep() {
         when(depA.getRequires()).thenReturn(newHashSet("dep.b"));
-        assertEquals(ImmutableList.of(depB, depA), resolver.resolveNamespace("dep.a").resolve());
+        assertEquals(ImmutableList.of(depB, depA),
+                     new DependencyResolver<>(ImmutableSet.of(depA, depB, depC)).resolveNamespace("dep.a").resolve());
     }
 
     @Test
     public void testDepOrdering() {
         when(depA.getRequires()).thenReturn(newHashSet("dep.c"));
         when(depC.getRequires()).thenReturn(newHashSet("dep.b"));
-        assertEquals(ImmutableList.of(depB, depC, depA), resolver.resolveNamespace("dep.a").resolve());
+        assertEquals(ImmutableList.of(depB, depC, depA),
+                     new DependencyResolver<>(ImmutableSet.of(depA, depB, depC)).resolveNamespace("dep.a").resolve());
     }
 
     @Test(expected = DependencyException.class)
@@ -53,7 +56,7 @@ public class DependencyResolverTest {
         when(depA.getRequires()).thenReturn(newHashSet("dep.c"));
         when(depC.getRequires()).thenReturn(newHashSet("dep.b"));
         when(depC.getRequires()).thenReturn(newHashSet("dep.a"));
-        resolver.resolveNamespace("dep.a").resolve();
+        new DependencyResolver<>(ImmutableSet.of(depA, depB, depC)).resolveNamespace("dep.a").resolve();
     }
 
     @Test(expected = DependencyException.class)
@@ -61,8 +64,13 @@ public class DependencyResolverTest {
         when(depA.getRequires()).thenReturn(newHashSet("dep.c"));
         when(depC.getRequires()).thenReturn(newHashSet("dep.b"));
         when(depC.getRequires()).thenReturn(newHashSet("dep.d"));
-        resolver.resolveNamespace("dep.a").resolve();
+        new DependencyResolver<>(ImmutableSet.of(depA, depB, depC)).resolveNamespace("dep.a").resolve();
     }
 
-
+    @Test
+    public void testResolveNode() {
+        assertEquals(ImmutableList.of(depA, depB),
+                     new DependencyResolver<>(ImmutableSet.of(depA, depB, depC)).resolveNodes(
+                             ImmutableList.of(depA, depB)).resolve());
+    }
 }
