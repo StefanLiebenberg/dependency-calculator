@@ -18,12 +18,12 @@ public class DependencyException extends RuntimeException {
         return new DependencyException("Cannot resolve dependencies for null resource");
     }
 
-    public static <N> DependencyException circularError(final N ns,
-                                                        final Collection<N> parents) {
+    public static <N, P> DependencyException circularError(final N ns,
+                                                           final Collection<P> parents) {
         StringBuilder builder = new StringBuilder();
         builder.append(String.format("Circular dependency detected while trying to resolve \"%s\".\n", ns));
         builder.append("  Parents: \n");
-        for (N node : parents) {
+        for (P node : parents) {
             builder.append("    + ").append(node).append("\n");
         }
         return new DependencyException(builder.toString());
