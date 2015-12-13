@@ -2,8 +2,10 @@ package org.slieb.dependencies;
 
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Supplies additional information about the dependency resolution.
@@ -19,13 +21,17 @@ public interface DependenciesHelper<D extends DependencyNode> {
      * @param dependencies A Collection of dependencies
      * @return A List of dependencies that should appear in front of any other nodes.
      */
-    List<D> getBaselist(Collection<D> dependencies);
+    default List<D> getBaseList(Collection<D> dependencies) {
+        return Collections.unmodifiableList(Collections.emptyList());
+    }
 
     /**
      * @param dependencies The dependency collection.
      * @return A set of dependencies that can be resolved.
      */
-    Set<D> getResolveableSet(Collection<D> dependencies);
+    default Set<D> getResolvableSet(Collection<D> dependencies) {
+        return Collections.unmodifiableSet(dependencies.stream().collect(Collectors.toSet()));
+    }
 
 }
 

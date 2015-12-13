@@ -1,71 +1,39 @@
 package org.slieb.dependencies;
 
-import com.google.common.collect.ImmutableList;
-
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * The dependency Resolver will resolve a collection of Dependencies.
- * note:          A draw back of this method is that too many items in the require chain will cause a long recursing and result in a stackoverflow.
+ * note:          A draw back of this method is that too many items in the require chain will cause a long recursing
+ * and result in a stackoverflow.
  *
  * @param <D> A extension of the dependency node.
  */
 public class DependencyResolver<D extends DependencyNode<?>> {
 
-    private final Collection<D> dependencyNodes;
-
-    private final ArrayList<D> resolvedNodes;
+    private final Map<String, D> provideMap;
+    private final DependencyMapResolver<D> mapped;
 
     /**
      * @param dependencyNodes A list of dependency nodes..
      */
     public DependencyResolver(Collection<D> dependencyNodes) {
-        this.dependencyNodes = dependencyNodes;
-        this.resolvedNodes = new ArrayList<>();
+        this.provideMap = DependencyUtils.getProvideMap(dependencyNodes);
+        this.mapped = new DependencyMapResolver<>(DependencyUtils.getDependencyMap(dependencyNodes, provideMap));
     }
 
     /**
      * @param dependencyNodes A List of dependency nodes.
      * @param baseList        A baselist of files that need to be included.
      */
-    public DependencyResolver(Collection<D> dependencyNodes, List<D> baseList) {
-        this(dependencyNodes);
-        if (baseList != null) {
-            this.resolvedNodes.addAll(baseList);
-        }
-    }
-
-    private D getProviderOfNamespace(String ns) {
-        return dependencyNodes.stream()
-                .filter(n -> n.getProvides().contains(ns))
-                .findFirst().orElse(null);
-    }
-
-    // synchronized because resolvedNodes add in here.
-    private synchronized void resolveDependencies(D node, HashSet<D> parents) throws DependencyException {
-        if (!resolvedNodes.contains(node)) {
-            parents.add(node);
-            node.getRequires().forEach(ns -> resolveDependencies(ns, parents));
-            parents.remove(node);
-            resolvedNodes.add(node);
-        }
-    }
-
-    private void resolveDependencies(String namespace, HashSet<D> parents) throws DependencyException {
-        final D node = getProviderOfNamespace(namespace);
-
-        if (node == null) {
-            throw DependencyException.nothingProvides(namespace);
-        }
-
-        if (parents.contains(node)) {
-            throw DependencyException.circularError(namespace, parents);
-        }
-
-        resolveDependencies(node, parents);
+    public DependencyResolver(Collection<D> dependencyNodes,
+                              List<D> baseList) {
+        this.provideMap = DependencyUtils.getProvideMap(dependencyNodes);
+        this.mapped = new DependencyMapResolver<>(DependencyUtils.getDependencyMap(dependencyNodes, provideMap),
+                                                  baseList);
     }
 
 
@@ -75,7 +43,9 @@ public class DependencyResolver<D extends DependencyNode<?>> {
      * @throws DependencyException If dependency resolution fails.
      */
     public DependencyResolver<D> resolveNamespace(String namespace) throws DependencyException {
-        resolveDependencies(namespace, new HashSet<>());
+        this.mapped.resolveNode(
+                Optional.ofNullable(this.provideMap.get(namespace))
+                        .orElseThrow(() -> DependencyException.nothingProvides(namespace)));
         return this;
     }
 
@@ -97,7 +67,7 @@ public class DependencyResolver<D extends DependencyNode<?>> {
      * @throws DependencyException If dependency resolution fails.
      */
     public DependencyResolver<D> resolveNode(D node) throws DependencyException {
-        resolveDependencies(node, new HashSet<>());
+        this.mapped.resolveNode(node);
         return this;
     }
 
@@ -107,14 +77,14 @@ public class DependencyResolver<D extends DependencyNode<?>> {
      * @throws DependencyException If dependency resolution fails.
      */
     public DependencyResolver<D> resolveNodes(Collection<D> nodes) throws DependencyException {
-        nodes.forEach(this::resolveNode);
+        this.mapped.resolveNodes(nodes);
         return this;
     }
 
     /**
-     * @return an {@link ImmutableList} of dependency nodes.
+     * @return an {@link List} of dependency nodes.
      */
-    public ImmutableList<D> resolve() {
-        return ImmutableList.copyOf(resolvedNodes);
+    public List<D> resolve() {
+        return mapped.resolve();
     }
 }

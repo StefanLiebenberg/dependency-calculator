@@ -1,42 +1,56 @@
 package org.slieb.dependencies;
 
 
-import java.util.Set;
+import java.util.Collection;
 
 public class DependencyException extends RuntimeException {
-    public DependencyException() {
-    }
 
     public DependencyException(String s) {
         super(s);
     }
 
-    public DependencyException(String s, Throwable throwable) {
-        super(s, throwable);
+    public DependencyException(final String stringValue,
+                               final DependencyException exception) {
+        super(stringValue, exception);
     }
 
-    public DependencyException(Throwable throwable) {
-        super(throwable);
+    public static DependencyException cannotResolveDependenciesForNullResource() {
+        return new DependencyException("Cannot resolve dependencies for null resource");
     }
 
-    public DependencyException(String s, Throwable throwable, boolean b, boolean b1) {
-        super(s, throwable, b, b1);
-    }
-
-    public static DependencyException nothingProvides(String missingProvide) {
-        throw new DependencyException(String.format("nothing provides %s", missingProvide));
-    }
-
-    public static DependencyException circularError(String ns, Set<? extends DependencyNode> parents) {
+    public static <N> DependencyException circularError(final N ns,
+                                                        final Collection<N> parents) {
         StringBuilder builder = new StringBuilder();
         builder.append(String.format("Circular dependency detected while trying to resolve \"%s\".\n", ns));
         builder.append("  Parents: \n");
-        for (DependencyNode<?> node : parents) {
-            builder.append("    + ").append(node.getResource()).append("\n");
-            for (String provide : node.getProvides()) {
-                builder.append("        \"").append(provide).append("\"\n");
-            }
+        for (N node : parents) {
+            builder.append("    + ").append(node).append("\n");
         }
-        throw new DependencyException(builder.toString());
+        return new DependencyException(builder.toString());
+    }
+
+    public static <N> DependencyException nothingProvides(N node) {
+        return new DependencyException(String.format("nothing provides %s", node.toString()));
+    }
+
+    public static DependencyException cannotResolveNullModule() {
+        return new DependencyException("Cannot resolve module name of null.");
+    }
+
+    public static DependencyException cannotResolveModuleWithNullNamespace(String moduleName) {
+        return new DependencyException(String.format("Cannot resolve namespace of null in module '%s'", moduleName));
+    }
+
+    public static DependencyException cannotResolveANullCollection() {
+        return new DependencyException("Cannot resolve a null collection of nodes");
+    }
+
+    public static DependencyException cannotResolveNull() {
+        return new DependencyException("The null value cannot be resolved.");
+    }
+
+    public static <Node> DependencyException cannotResolve(Node node,
+                                                           DependencyException dependencyException) {
+        return new DependencyException(String.format("Cannot resolve %s", node), dependencyException);
     }
 }
