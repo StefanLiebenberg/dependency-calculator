@@ -56,11 +56,11 @@
         <version>9</version>
     </parent>
     <scm>
-        <url>https://github.com/StefanLiebenberg/dependendency-calculator</url>
+        <url>https://github.com/StefanLiebenberg/dependency-calculator</url>
         <connection>
-            scm:git:git://github.com/StefanLiebenberg/dependendency-calculator.git
+            scm:git:git://github.com/StefanLiebenberg/dependency-calculator.git
         </connection>
-        <developerConnection>scm:git:git@github.com:StefanLiebenberg/dependendency-calculator.git</developerConnection>
+        <developerConnection>scm:git:git@github.com:StefanLiebenberg/dependency-calculator.git</developerConnection>
     </scm>
 
     <developers>
